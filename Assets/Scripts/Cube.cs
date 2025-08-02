@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [SelectionBase]
 [RequireComponent(typeof(Rigidbody))]
@@ -8,15 +10,18 @@ using UnityEngine;
 public class Cube : MonoBehaviour
 {
     private int _shutdownCounter;
+    private int _minValueDeactivation = 2;
+    private int _maxValueDeactivation = 5;
+    private bool _isHitPlatform = false;
 
     private Rigidbody _cacheRigidbody;
     private Collider _cacheCollider;
     private Renderer _cacheRenderer;
-    private bool _isHitPlatform = false;
+    private ColorChanger _colorChanger;
 
-    public event Action<Cube> CubeHitPlatform;
+    public event Action<Cube> CubeTimerHasEnded;
 
-    public int ShutdownCounter => _shutdownCounter;
+    private Coroutine _decreaseValueCoroutine;
 
     public Material Material
     {
@@ -36,29 +41,53 @@ public class Cube : MonoBehaviour
         if (collision.rigidbody.TryGetComponent(out Platform platform))
         {
             if (_isHitPlatform == false)
-                CubeHitPlatform?.Invoke(this);
+            {
+                _isHitPlatform = true;
 
-            _isHitPlatform = true;
+                _colorChanger.ChangeColor(this);
+
+                _decreaseValueCoroutine = StartCoroutine(DecreaseValueRoutine());
+            }
         }
     }
 
-    public void DecreaseCounterValue()
+    public void Reset()
     {
-        _shutdownCounter--;
+        _colorChanger.ResetMaterial(this);
+
+        if (_decreaseValueCoroutine != null)
+        {
+            StopCoroutine(_decreaseValueCoroutine);
+            _decreaseValueCoroutine = null;
+        }
+    }
+
+    private IEnumerator DecreaseValueRoutine()
+    {
+        yield return new WaitForSeconds(_shutdownCounter);
+
+        CubeTimerHasEnded?.Invoke(this);
     }
 
     public void ChangeMaterial(Material material)
     {
+        if (material == null)
+            throw new NullReferenceException(nameof(material));
+
         Material = material;
     }
 
-    public void ChangeShutdownCounter(int number)
+    public void Initialization(ColorChanger colorChanger)
     {
-        _shutdownCounter = number;
+        _colorChanger = colorChanger;
+
+        _shutdownCounter = GenerateCounterValue();
+
+        _isHitPlatform = false;
     }
 
-    public void ResetPlatformTuch()
+    private int GenerateCounterValue()
     {
-        _isHitPlatform = false;
+        return Random.Range(_minValueDeactivation, _maxValueDeactivation + 1);
     }
 }
