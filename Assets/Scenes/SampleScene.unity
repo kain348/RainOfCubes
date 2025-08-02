@@ -1267,6 +1267,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2048248376}
   - component: {fileID: 2048248377}
+  - component: {fileID: 2048248378}
   m_Layer: 0
   m_Name: StageController
   m_TagString: Untagged
@@ -1305,10 +1306,21 @@ MonoBehaviour:
   _numberOfCubesPerSecond: 5
   _maxPoolSize: 100
   _spawnDelay: 1
-  _minValueDeactivation: 2
-  _maxValueDeactivation: 5
   _cubePrefab: {fileID: 1413406023872143661, guid: 60b3feb179d23884198ad7ce8a3270d0, type: 3}
   _spawnZone: {fileID: 1282638601}
+  _colorChanger: {fileID: 2048248378}
+--- !u!114 &2048248378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2048248375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16244f2f8bd753647a0a5428c8c8cb27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   _standartMaterial: {fileID: 2100000, guid: c7f135979b013fe40b8a0603d076af54, type: 2}
   _materials:
   - {fileID: 2100000, guid: d09ce795efbce124a8f650869c9a0a67, type: 2}
