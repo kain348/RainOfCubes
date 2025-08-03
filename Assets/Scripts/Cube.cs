@@ -46,6 +46,8 @@ public class Cube : MonoBehaviour
 
                 _colorChanger.ChangeColor(this);
 
+                _shutdownCounter = GenerateCounterValue();
+
                 _decreaseValueCoroutine = StartCoroutine(DecreaseValueRoutine());
             }
         }
@@ -54,6 +56,16 @@ public class Cube : MonoBehaviour
     public void Reset()
     {
         _colorChanger.ResetMaterial(this);
+
+        _isHitPlatform = false;
+
+        transform.rotation = Quaternion.identity;
+
+        if (TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        {
+            rigidbody.velocity = Vector3.zero;
+            rigidbody.angularVelocity = Vector3.zero;
+        }
 
         if (_decreaseValueCoroutine != null)
         {
@@ -77,13 +89,9 @@ public class Cube : MonoBehaviour
         Material = material;
     }
 
-    public void Initialization(ColorChanger colorChanger)
+    public void SetColorChanger(ColorChanger colorChanger)
     {
         _colorChanger = colorChanger;
-
-        _shutdownCounter = GenerateCounterValue();
-
-        _isHitPlatform = false;
     }
 
     private int GenerateCounterValue()

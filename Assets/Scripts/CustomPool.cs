@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class CustomPool<T> where T : MonoBehaviour
 {
@@ -9,13 +11,15 @@ public class CustomPool<T> where T : MonoBehaviour
     private readonly T _prefab;
     private readonly List<T> _allObjects = new List<T>();
     private readonly Queue<T> _availableObjects = new Queue<T>();
+    private readonly Action<T> _initializeAction;
 
-    public CustomPool(T prefab, int prewarmObjects, int maxPoolSize = 100)
+    public CustomPool(T prefab, Action<T> initializeAction, int prewarmObjects, int maxPoolSize = 100)
     {
         if (prefab is null)
             throw new System.ArgumentNullException(nameof(prefab));
 
         _prefab = prefab;
+        _initializeAction = initializeAction;
         _maxPoolSize = maxPoolSize;
 
         for (int i = 0; i < prewarmObjects; i++)
@@ -69,6 +73,7 @@ public class CustomPool<T> where T : MonoBehaviour
     private T CreateNewObject()
     {
         var @object = Object.Instantiate(_prefab);
+        _initializeAction?.Invoke(@object);
         @object.gameObject.SetActive(false);
         _allObjects.Add(@object);
         _availableObjects.Enqueue(@object);
