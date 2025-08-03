@@ -21,6 +21,7 @@ public class Spawner : MonoBehaviour
 
     private int _prewarmCubeCount = 30;
     private Coroutine _spawnCoroutine;
+    private WaitForSeconds _spawnWait;
     private CustomPool<Cube> _pool;
     private List<Cube> _touchOfPlatformCubes = new List<Cube>();
 
@@ -32,7 +33,8 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        _pool = new CustomPool<Cube>(_cubePrefab, _prewarmCubeCount, _maxPoolSize);
+        _pool = new CustomPool<Cube>(_cubePrefab, cube => cube.SetColorChanger(_colorChanger), _prewarmCubeCount, _maxPoolSize);
+        _spawnWait = new WaitForSeconds(_spawnDelay);
         _spawnCoroutine = StartCoroutine(SpawnRoutine());
     }
 
@@ -51,7 +53,7 @@ public class Spawner : MonoBehaviour
     {
         while (_isRaining)
         {
-            yield return new WaitForSeconds(_spawnDelay);
+            yield return _spawnWait;
 
             Spawned();
         }
@@ -71,8 +73,6 @@ public class Spawner : MonoBehaviour
 
     private void ConfigureCube(Cube cube)
     {
-        cube.Initialization(_colorChanger);
-
         Vector3 pointSpawn = CreateRandomPoint();
         cube.transform.position = pointSpawn;
     }
@@ -91,23 +91,10 @@ public class Spawner : MonoBehaviour
     {
         cube.CubeTimerHasEnded -= CubesDisconnection;
 
-        ResetConfigureCube(cube);
+        cube.Reset();
 
         _touchOfPlatformCubes.Remove(cube);
 
         _pool.Release(cube);
-    }
-
-    private void ResetConfigureCube(Cube cube)
-    {
-        cube.Reset();
-
-        cube.transform.rotation = Quaternion.identity;
-
-        if (cube.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
-        {
-            rigidbody.velocity = Vector3.zero;
-            rigidbody.angularVelocity = Vector3.zero;
-        }
     }
 }
